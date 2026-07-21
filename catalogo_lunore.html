@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LNR — Catálogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF2E4;
+    --cream-soft:#F6E9D6;
+    --wine:#7A1B2E;
+    --wine-deep:#54101F;
+    --gold:#B08D57;
+    --gold-soft:#D9C5A0;
+    --ink:#2B1B12;
+    --blush:#F1DCC9;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Cormorant Garamond', serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .eyebrow{
+    font-family:'Cinzel', serif;
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--wine);
+  }
+
+  /* ===== HEADER ===== */
+  header{
+    padding:26px 24px 22px;
+    text-align:center;
+    border-bottom:1px solid var(--gold-soft);
+    position:relative;
+  }
+  .logo{
+    font-family:'Cinzel', serif;
+    font-weight:600;
+    font-size:34px;
+    letter-spacing:.14em;
+    color:var(--wine);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .logo svg{ width:16px; height:26px; }
+  .tagline{
+    margin-top:6px;
+    font-style:italic;
+    color:#7A6656;
+    font-size:15px;
+    letter-spacing:.02em;
+  }
+
+  /* ===== NAV / FILTERS ===== */
+  nav{
+    display:flex;
+    justify-content:center;
+    gap:34px;
+    flex-wrap:wrap;
+    padding:18px 16px;
+    font-family:'Cinzel', serif;
+    font-size:12.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  nav button{
+    background:none;
+    border:none;
+    color:var(--ink);
+    cursor:pointer;
+    padding:6px 2px;
+    position:relative;
+    font-family:inherit;
+    font-size:inherit;
+    letter-spacing:inherit;
+    text-transform:inherit;
+  }
+  nav button::after{
+    content:"";
+    position:absolute;
+    left:50%; right:50%; bottom:-2px;
+    height:1px;
+    background:var(--wine);
+    transition:left .25s ease, right .25s ease;
+  }
+  nav button.active, nav button:hover{ color:var(--wine); }
+  nav button.active::after, nav button:hover::after{ left:0; right:0; }
+
+  /* ===== GRID ===== */
+  main{ max-width:1180px; margin:0 auto; padding:10px 20px 80px; }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(240px,1fr));
+    gap:26px;
+    margin-bottom:52px;
+  }
+  .section-title{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin:44px 0 22px;
+  }
+  .section-title h2{
+    font-family:'Cinzel', serif;
+    font-size:18px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--wine-deep);
+    white-space:nowrap;
+  }
+  .section-title .line{ height:1px; flex:1; background:var(--gold-soft); }
+
+  .card{
+    background:#fff;
+    border:1px solid var(--gold-soft);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover{ transform:translateY(-4px); box-shadow:0 14px 28px -18px rgba(84,16,31,.35); }
+  .thumb{
+    aspect-ratio:1/1;
+    background:linear-gradient(135deg, var(--blush), var(--cream-soft));
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .thumb img{ width:100%; height:100%; object-fit:cover; }
+  .thumb .placeholder-star{ width:38px; height:38px; opacity:.55; }
+  .card-body{ padding:16px 18px 18px; display:flex; flex-direction:column; flex:1; }
+  .card-cat{ font-size:10.5px; letter-spacing:.16em; color:var(--gold); font-family:'Cinzel',serif; margin-bottom:4px; }
+  .card-name{ font-size:20px; font-weight:600; color:var(--ink); line-height:1.25; }
+  .card-desc{ font-size:14.5px; color:#7A6656; margin-top:4px; flex:1; font-style:italic; }
+  .card-price{ font-size:19px; color:var(--wine-deep); margin:12px 0 14px; font-weight:600; }
+  .card-price .old{ font-size:14px; text-decoration:line-through; color:#B4A088; font-weight:400; margin-left:8px; }
+
+  .btn-row{ display:flex; gap:8px; }
+  .btn{
+    flex:1;
+    text-align:center;
+    padding:10px 8px;
+    font-family:'Cinzel', serif;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    text-decoration:none;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:opacity .2s ease;
+  }
+  .btn:hover{ opacity:.85; }
+  .btn-buy{ background:var(--wine); color:#fff; }
+  .btn-ask{ background:transparent; border-color:var(--wine); color:var(--wine); display:flex; align-items:center; justify-content:center; gap:6px; }
+  .btn-ask svg{ width:13px; height:13px; fill:var(--wine); }
+
+  /* star divider used inline */
+  .star{ display:inline-block; }
+
+  /* ===== FLOATING WHATSAPP ===== */
+  .float-wa{
+    position:fixed;
+    bottom:22px; right:22px;
+    width:56px; height:56px;
+    background:#25D366;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+    z-index:50;
+    text-decoration:none;
+  }
+  .float-wa svg{ width:28px; height:28px; fill:#fff; }
+
+  footer{
+    text-align:center;
+    padding:30px 20px 40px;
+    border-top:1px solid var(--gold-soft);
+    font-size:13px;
+    color:#8A7862;
+  }
+
+  @media (max-width:480px){
+    .logo{ font-size:26px; }
+    nav{ gap:18px; font-size:11px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================================================================
+  CONFIGURAÇÃO RÁPIDA — edite aqui:
+  1) WHATSAPP_NUMBER: número no formato DDI+DDD+NÚMERO, só dígitos.
+  2) Cada produto tem "link": coloque o link de pagamento (Mercado Pago,
+     PagSeguro, Stripe, Nuvemshop, InfinitePay, PIX copia-e-cola em link, etc.)
+  3) Cada produto tem "img": troque pela URL da foto real do produto.
+     Enquanto não tiver a foto, o card mostra um placeholder com a estrela LNR.
+========================================================================= -->
+<script>
+  const WHATSAPP_NUMBER = "5511999999999"; // <-- troque pelo número real da Lunore
+
+  const PRODUCTS = [
+    // ---------- COLARES ----------
+    { id:"col-01", cat:"Colares", nome:"Colar Aurora", desc:"Corrente fina banhada a ouro, pingente solitário", preco:"R$ 89,90", precoAntigo:"", img:"", link:"" },
+    { id:"col-02", cat:"Colares", nome:"Colar Veneza", desc:"Elos venezianos, fecho reforçado", preco:"R$ 119,90", precoAntigo:"R$ 149,90", img:"", link:"" },
+    { id:"col-03", cat:"Colares", nome:"Colar Perla", desc:"Pérolas sintéticas com detalhes dourados", preco:"R$ 104,90", precoAntigo:"", img:"", link:"" },
+
+    // ---------- PULSEIRAS ----------
+    { id:"pul-01", cat:"Pulseiras", nome:"Pulseira Riviera", desc:"Zircônias cravejadas, ajuste regulável", preco:"R$ 79,90", precoAntigo:"", img:"", link:"" },
+    { id:"pul-02", cat:"Pulseiras", nome:"Pulseira Fio de Seda", desc:"Corrente delicada tipo cordão", preco:"R$ 59,90", precoAntigo:"", img:"", link:"" },
+    { id:"pul-03", cat:"Pulseiras", nome:"Pulseira Constelação", desc:"Pingentes de estrela, banho a ouro 18k", preco:"R$ 94,90", precoAntigo:"", img:"", link:"" },
+
+    // ---------- BRACELETES ----------
+    { id:"bra-01", cat:"Braceletes", nome:"Bracelete Imperatriz", desc:"Peça rígida, acabamento polido", preco:"R$ 129,90", precoAntigo:"", img:"", link:"" },
+    { id:"bra-02", cat:"Braceletes", nome:"Bracelete Torcido", desc:"Design trançado, banho a ouro", preco:"R$ 109,90", precoAntigo:"", img:"", link:"" },
+
+    // ---------- BRINCOS ----------
+    { id:"bri-01", cat:"Brincos", nome:"Brinco Gota Cristal", desc:"Zircônia lapidada em gota, argola de pressão", preco:"R$ 69,90", precoAntigo:"", img:"", link:"" },
+    { id:"bri-02", cat:"Brincos", nome:"Brinco Argola Clássica", desc:"Argola média, fecho articulado", preco:"R$ 64,90", precoAntigo:"", img:"", link:"" },
+    { id:"bri-03", cat:"Brincos", nome:"Brinco Ponto de Luz", desc:"Zircônia solitária, uso diário", preco:"R$ 49,90", precoAntigo:"", img:"", link:"" },
+
+    // ---------- ANÉIS ----------
+    { id:"ane-01", cat:"Anéis", nome:"Anel Lunore Signature", desc:"Aro fino com estrela central, ajustável", preco:"R$ 74,90", precoAntigo:"", img:"", link:"" },
+    { id:"ane-02", cat:"Anéis", nome:"Anel Solitário Clássico", desc:"Zircônia central 5mm, banho a ouro 18k", preco:"R$ 84,90", precoAntigo:"", img:"", link:"" },
+  ];
+</script>
+
+<header>
+  <div class="logo">
+    L
+    <svg viewBox="0 0 20 40" xmlns="http://www.w3.org/2000/svg"><path d="M10 0 L12 17 L20 20 L12 23 L10 40 L8 23 L0 20 L8 17 Z" fill="#7A1B2E"/></svg>
+    R
+  </div>
+  <div class="tagline">semijoias · catálogo digital</div>
+</header>
+
+<nav id="filters"></nav>
+
+<main>
+  <div id="catalog"></div>
+</main>
+
+<a class="float-wa" id="floatWa" href="#" target="_blank" rel="noopener">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.198.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.001 2C6.478 2 2 6.477 2 12c0 1.86.505 3.6 1.377 5.093L2 22l4.99-1.348A9.955 9.955 0 0012.001 22C17.523 22 22 17.523 22 12S17.523 2 12.001 2zm0 18.09a8.06 8.06 0 01-4.278-1.233l-.307-.183-3.13.846.837-3.055-.2-.316A8.09 8.09 0 013.91 12c0-4.463 3.63-8.09 8.09-8.09 4.462 0 8.09 3.627 8.09 8.09 0 4.463-3.628 8.09-8.09 8.09z"/></svg>
+</a>
+
+<footer>
+  LNR — Lunore Semijoias · Atendimento e pagamento via WhatsApp e link de pagamento seguro
+</footer>
+
+<script>
+  const grouped = {};
+  PRODUCTS.forEach(p => { (grouped[p.cat] = grouped[p.cat] || []).push(p); });
+  const categories = Object.keys(grouped);
+
+  // nav
+  const nav = document.getElementById('filters');
+  const allBtn = document.createElement('button');
+  allBtn.textContent = 'Todos'; allBtn.classList.add('active');
+  allBtn.onclick = () => render('Todos');
+  nav.appendChild(allBtn);
+  categories.forEach(cat=>{
+    const b = document.createElement('button');
+    b.textContent = cat;
+    b.onclick = () => render(cat);
+    nav.appendChild(b);
+  });
+
+  function starSvg(){
+    return `<svg class="placeholder-star" viewBox="0 0 20 40" xmlns="http://www.w3.org/2000/svg"><path d="M10 0 L12 17 L20 20 L12 23 L10 40 L8 23 L0 20 L8 17 Z" fill="#B08D57"/></svg>`;
+  }
+
+  function waLink(p){
+    const msg = encodeURIComponent(`Olá! Tenho interesse na peça "${p.nome}" (${p.preco}) do catálogo LNR. Poderia me ajudar? 😊`);
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+  }
+
+  function render(filter){
+    document.querySelectorAll('#filters button').forEach(b=>{
+      b.classList.toggle('active', b.textContent === filter);
+    });
+    const catalog = document.getElementById('catalog');
+    catalog.innerHTML = '';
+    const cats = filter === 'Todos' ? categories : [filter];
+
+    cats.forEach(cat=>{
+      const title = document.createElement('div');
+      title.className = 'section-title';
+      title.innerHTML = `<h2>${cat}</h2><div class="line"></div>`;
+      catalog.appendChild(title);
+
+      const grid = document.createElement('div');
+      grid.className = 'grid';
+
+      grouped[cat].forEach(p=>{
+        const card = document.createElement('div');
+        card.className = 'card';
+        const priceLink = p.link && p.link.trim() ? p.link : waLink(p);
+        card.innerHTML = `
+          <div class="thumb">${p.img ? `<img src="${p.img}" alt="${p.nome}">` : starSvg()}</div>
+          <div class="card-body">
+            <div class="card-cat">${p.cat}</div>
+            <div class="card-name">${p.nome}</div>
+            <div class="card-desc">${p.desc}</div>
+            <div class="card-price">${p.preco}${p.precoAntigo ? `<span class="old">${p.precoAntigo}</span>` : ''}</div>
+            <div class="btn-row">
+              <a class="btn btn-ask" href="${waLink(p)}" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.198.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+                Perguntar
+              </a>
+              <a class="btn btn-buy" href="${priceLink}" target="_blank" rel="noopener">Comprar</a>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+      catalog.appendChild(grid);
+    });
+  }
+
+  document.getElementById('floatWa').href =
+    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Olá! Vi o catálogo LNR e gostaria de mais informações 😊')}`;
+
+  render('Todos');
+</script>
+
+</body>
+</html>
