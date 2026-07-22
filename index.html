@@ -307,6 +307,64 @@
     .lightbox-nav.next{ right:6px; }
     .lightbox-nav{ width:38px; height:38px; }
   }
+
+  /* ===== MODAL DE COMPRA (coleta dados do comprador) ===== */
+  .buy-overlay{
+    position:fixed; inset:0;
+    background:rgba(43,27,18,.55);
+    display:none;
+    align-items:center; justify-content:center;
+    padding:20px;
+    z-index:200;
+  }
+  .buy-overlay.open{ display:flex; }
+  .buy-modal{
+    background:var(--cream);
+    max-width:420px; width:100%;
+    max-height:90vh;
+    overflow-y:auto;
+    border:1px solid var(--gold-soft);
+    padding:26px 26px 22px;
+    position:relative;
+  }
+  .buy-modal-close{
+    position:absolute; top:12px; right:14px;
+    background:none; border:none;
+    font-size:22px; line-height:1;
+    color:var(--wine-deep); cursor:pointer;
+  }
+  .buy-modal h3{
+    font-family:'Cinzel', serif;
+    font-size:16px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--wine-deep);
+    margin-bottom:4px;
+  }
+  .buy-modal .buy-product{
+    font-style:italic; color:#7A6656; font-size:15px; margin-bottom:18px;
+  }
+  .buy-field{ margin-bottom:14px; }
+  .buy-field label{
+    display:block; font-family:'Cinzel', serif; font-size:10.5px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--gold);
+    margin-bottom:5px;
+  }
+  .buy-field input, .buy-field textarea{
+    width:100%; border:1px solid var(--gold-soft); background:#fff;
+    padding:10px 11px; font-family:'Cormorant Garamond', serif; font-size:16px;
+    color:var(--ink);
+  }
+  .buy-field textarea{ resize:vertical; min-height:56px; }
+  .buy-field input:focus, .buy-field textarea:focus{ outline:1px solid var(--wine); }
+  .buy-note{
+    font-size:12.5px; color:#9C8770; margin:2px 0 18px; line-height:1.4;
+  }
+  .buy-submit{
+    display:block; width:100%; text-align:center;
+    background:var(--wine); color:#fff; border:none;
+    padding:13px 8px; font-family:'Cinzel', serif; font-size:12px;
+    letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+  }
+  .buy-submit:hover{ opacity:.88; }
 </style>
 </head>
 <body>
@@ -358,6 +416,31 @@
     <img id="lightboxImg" src="" alt="">
     <div class="lightbox-caption" id="lightboxCaption"></div>
     <div class="lightbox-dots" id="lightboxDots"></div>
+  </div>
+</div>
+
+<!-- Modal de compra: coleta os dados do comprador antes do pagamento -->
+<div class="buy-overlay" id="buyOverlay" onclick="if(event.target===this) closeBuyModal()">
+  <div class="buy-modal">
+    <button type="button" class="buy-modal-close" onclick="closeBuyModal()" aria-label="Fechar">&times;</button>
+    <h3>Confirmar pedido</h3>
+    <div class="buy-product" id="buyProductLabel"></div>
+    <form id="buyForm" onsubmit="submitBuyModal(event)">
+      <div class="buy-field">
+        <label for="buyNome">Nome completo</label>
+        <input type="text" id="buyNome" required autocomplete="name">
+      </div>
+      <div class="buy-field">
+        <label for="buyTelefone">WhatsApp</label>
+        <input type="tel" id="buyTelefone" required autocomplete="tel" placeholder="(19) 99999-9999">
+      </div>
+      <div class="buy-field">
+        <label for="buyEndereco">Endereço de entrega</label>
+        <textarea id="buyEndereco" required autocomplete="street-address" placeholder="Rua, número, bairro, cidade, CEP"></textarea>
+      </div>
+      <p class="buy-note">Ao confirmar, vamos abrir uma mensagem de WhatsApp com seus dados e, em seguida, a página de pagamento seguro do produto.</p>
+      <button type="submit" class="buy-submit">Confirmar e ir para pagamento</button>
+    </form>
   </div>
 </div>
 
@@ -567,6 +650,10 @@
   }
 
   document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && document.getElementById('buyOverlay').classList.contains('open')){
+      closeBuyModal();
+      return;
+    }
     if(!document.getElementById('lightbox').classList.contains('open')) return;
     if(e.key === 'Escape') closeLightbox();
     if(e.key === 'ArrowLeft') lightboxChange(-1);
@@ -582,6 +669,82 @@
     const msg = encodeURIComponent(`Olá! Tenho interesse na peça "${p.nome}" (${p.preco}) do catálogo LNR. Poderia me ajudar? 😊`);
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
   }
+
+  // ---------- Modal de compra (coleta dados + gera código do pedido) ----------
+  let buyModalProduct = null;
+
+  function generateOrderCode(){
+    const stamp = Date.now().toString(36).toUpperCase();
+    const rand = Math.random().toString(36).slice(2, 5).toUpperCase();
+    return `LNR-${stamp}-${rand}`;
+  }
+
+  function openBuyModal(id){
+    const p = PRODUCTS.find(pr => pr.id === id);
+    if(!p) return;
+    buyModalProduct = p;
+    document.getElementById('buyProductLabel').textContent = `${p.nome} — ${p.preco}`;
+
+    // pré-preenche com os últimos dados usados (conveniência para clientes recorrentes)
+    try{
+      const saved = JSON.parse(localStorage.getItem('lnr_buyer_info') || 'null');
+      if(saved){
+        document.getElementById('buyNome').value = saved.nome || '';
+        document.getElementById('buyTelefone').value = saved.telefone || '';
+        document.getElementById('buyEndereco').value = saved.endereco || '';
+      }
+    }catch(e){ /* ignora erro de localStorage */ }
+
+    document.getElementById('buyOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeBuyModal(){
+    document.getElementById('buyOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    buyModalProduct = null;
+  }
+
+  function submitBuyModal(event){
+    event.preventDefault();
+    const p = buyModalProduct;
+    if(!p) return;
+
+    const nome = document.getElementById('buyNome').value.trim();
+    const telefone = document.getElementById('buyTelefone').value.trim();
+    const endereco = document.getElementById('buyEndereco').value.trim();
+    if(!nome || !telefone || !endereco) return;
+
+    // salva localmente para pré-preencher em compras futuras neste navegador
+    try{
+      localStorage.setItem('lnr_buyer_info', JSON.stringify({ nome, telefone, endereco }));
+    }catch(e){ /* ignora erro de localStorage */ }
+
+    const orderCode = generateOrderCode();
+    const priceLink = p.link && p.link.trim() ? p.link : waLink(p);
+
+    const msg = encodeURIComponent(
+      `🛍️ Novo pedido LNR\n` +
+      `Código: ${orderCode}\n\n` +
+      `Peça: ${p.nome}\n` +
+      `Valor: ${p.preco}\n\n` +
+      `Nome: ${nome}\n` +
+      `WhatsApp: ${telefone}\n` +
+      `Endereço: ${endereco}\n\n` +
+      `Vou finalizar o pagamento agora pelo link seguro.`
+    );
+    const notifyLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+
+    // abre o WhatsApp (para você receber os dados do pedido) em uma nova aba...
+    window.open(notifyLink, '_blank', 'noopener');
+    // ...e leva o comprador para o pagamento na aba atual
+    closeBuyModal();
+    window.location.href = priceLink;
+  }
+
+  window.openBuyModal = openBuyModal;
+  window.closeBuyModal = closeBuyModal;
+  window.submitBuyModal = submitBuyModal;
 
   function render(filter){
     document.querySelectorAll('#filters button').forEach(b=>{
@@ -639,7 +802,7 @@
                 </svg>
                 Perguntar
               </a>
-              <a class="btn btn-buy" href="${priceLink}" target="_blank" rel="noopener">Comprar</a>
+              <button type="button" class="btn btn-buy" onclick="openBuyModal('${p.id}')">Comprar</button>
             </div>
           </div>`;
         grid.appendChild(card);
