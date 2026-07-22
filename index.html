@@ -423,24 +423,39 @@
 <div class="buy-overlay" id="buyOverlay" onclick="if(event.target===this) closeBuyModal()">
   <div class="buy-modal">
     <button type="button" class="buy-modal-close" onclick="closeBuyModal()" aria-label="Fechar">&times;</button>
-    <h3>Confirmar pedido</h3>
-    <div class="buy-product" id="buyProductLabel"></div>
-    <form id="buyForm" onsubmit="submitBuyModal(event)">
-      <div class="buy-field">
-        <label for="buyNome">Nome completo</label>
-        <input type="text" id="buyNome" required autocomplete="name">
-      </div>
-      <div class="buy-field">
-        <label for="buyTelefone">WhatsApp</label>
-        <input type="tel" id="buyTelefone" required autocomplete="tel" placeholder="(19) 99999-9999">
-      </div>
-      <div class="buy-field">
-        <label for="buyEndereco">Endereço de entrega</label>
-        <textarea id="buyEndereco" required autocomplete="street-address" placeholder="Rua, número, bairro, cidade, CEP"></textarea>
-      </div>
-      <p class="buy-note">Ao confirmar, vamos abrir uma mensagem de WhatsApp com seus dados e, em seguida, a página de pagamento seguro do produto.</p>
-      <button type="submit" class="buy-submit">Confirmar e ir para pagamento</button>
-    </form>
+
+    <div id="buyStep1">
+      <h3>Confirmar pedido</h3>
+      <div class="buy-product" id="buyProductLabel"></div>
+      <form id="buyForm" onsubmit="submitBuyModal(event)">
+        <div class="buy-field">
+          <label for="buyNome">Nome completo</label>
+          <input type="text" id="buyNome" required autocomplete="name">
+        </div>
+        <div class="buy-field">
+          <label for="buyTelefone">WhatsApp</label>
+          <input type="tel" id="buyTelefone" required autocomplete="tel" placeholder="(19) 99999-9999">
+        </div>
+        <div class="buy-field">
+          <label for="buyEndereco">Endereço de entrega</label>
+          <textarea id="buyEndereco" required autocomplete="street-address" placeholder="Rua, número, bairro, cidade, CEP"></textarea>
+        </div>
+        <p class="buy-note">Ao confirmar, vamos abrir uma mensagem de WhatsApp com seus dados e o link de pagamento seguro.</p>
+        <button type="submit" class="buy-submit">Confirmar pedido</button>
+      </form>
+    </div>
+
+    <div id="buyStep2" style="display:none;">
+      <h3>Pedido enviado 🎉</h3>
+      <p class="buy-note" style="margin-top:6px;">
+        Abrimos uma conversa no seu WhatsApp com o resumo do pedido e o <b>link de pagamento seguro</b> —
+        ele fica salvo lá, então você pode pagar por essa aba ou voltar na conversa quando quiser.
+      </p>
+      <p class="buy-note">Código do pedido: <b id="buyOrderCode"></b></p>
+      <button type="button" class="buy-submit" id="buyGoToPayment">Ir para pagamento agora</button>
+      <button type="button" class="buy-submit" style="background:transparent; color:var(--wine); border:1px solid var(--wine); margin-top:10px;" onclick="closeBuyModal()">Continuar vendo o catálogo</button>
+    </div>
+
   </div>
 </div>
 
@@ -685,6 +700,10 @@
     buyModalProduct = p;
     document.getElementById('buyProductLabel').textContent = `${p.nome} — ${p.preco}`;
 
+    // volta sempre para a etapa 1 (formulário) ao abrir
+    document.getElementById('buyStep1').style.display = '';
+    document.getElementById('buyStep2').style.display = 'none';
+
     // pré-preenche com os últimos dados usados (conveniência para clientes recorrentes)
     try{
       const saved = JSON.parse(localStorage.getItem('lnr_buyer_info') || 'null');
@@ -731,15 +750,19 @@
       `Nome: ${nome}\n` +
       `WhatsApp: ${telefone}\n` +
       `Endereço: ${endereco}\n\n` +
-      `Vou finalizar o pagamento agora pelo link seguro.`
+      `💳 Link de pagamento seguro (Mercado Pago):\n${priceLink}\n\n` +
+      `Assim que o pagamento cair, é só aguardar a confirmação por aqui mesmo no WhatsApp 😊`
     );
     const notifyLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
 
-    // abre o WhatsApp (para você receber os dados do pedido) em uma nova aba...
+    // abre o WhatsApp (com o link de pagamento já dentro da mensagem) em uma nova aba
     window.open(notifyLink, '_blank', 'noopener');
-    // ...e leva o comprador para o pagamento na aba atual
-    closeBuyModal();
-    window.location.href = priceLink;
+
+    // troca o modal para a tela de confirmação, sem sair do site automaticamente
+    document.getElementById('buyOrderCode').textContent = orderCode;
+    document.getElementById('buyStep1').style.display = 'none';
+    document.getElementById('buyStep2').style.display = '';
+    document.getElementById('buyGoToPayment').onclick = () => { window.location.href = priceLink; };
   }
 
   window.openBuyModal = openBuyModal;
